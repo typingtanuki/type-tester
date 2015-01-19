@@ -17,13 +17,13 @@ function(/*number*/ aNumber, /*[optional] string*/ aString){
 
 ### Simple type check
 ```javascript
-function(/*<type>*/ varName){
+function(/*type*/ varName){
   // ...
 }
 ```
 Is equivalent to a:
 ```javascript
-if(typeof varName!=<type>){
+if(typeof varName!=type){
   console.warn(...);
 }
 ```
@@ -32,7 +32,23 @@ if(typeof varName!=<type>){
 By default, passing null, undefined as an argument will raise a warning.
 In order to allow for optional arguments, use the following markup:
 ```javascript
-function(/*[optional] <type>*/ varName){
+function(/*[optional] type*/ varName){
+  // ...
+}
+```
+
+### Subtypes check
+When dealing with an array, we might want to limit the types passed inside that array.
+You can use the following syntax:
+```javascript
+function(/*array<type>*/ varName){
+  // ...
+}
+```
+
+All types and virtual types can be used:
+```javascript
+function(/*array<int>*/ varName){
   // ...
 }
 ```
@@ -41,7 +57,7 @@ function(/*[optional] <type>*/ varName){
 Passing more arguments to a function than what the signature allows, will raise a warning.
 Passing to few arguments will also trigger a warning, unless the extra arguments are marked as optional.
 ```javascript
-function(/*<type>*/ var1, /*[optional] <type>*/ var2){
+function(/*type*/ var1, /*[optional] type*/ var2){
   // ...
 }
 ```
@@ -62,14 +78,14 @@ f(1, 2, 3); //The function only takes 2 arguments
 ```
 
 ### Virtual types
-Some extra values are allowed for the <type> which are not actually returned by 'typeof'.
+Some extra values are allowed for the type which are not actually returned by 'typeof'.
 
 * 'any': Accept any type (no check)
 * 'int': Only accept integer
 * 'float': Accept both integers and floating points numbers
 * 'array': Only accept arrays
+* 'dom': Any DOM Node
 
 ## Planned features
 
-* Support for '/* array[type] */ varName' notation
 * Support for regex pattern matching as '/* /regex/ */ varName'

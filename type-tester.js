@@ -14,7 +14,7 @@ window.TypeTester = {
         return argument.indexOf("[optional]") == 0;
     },
     extractParameter: function (parameter) {
-        var name, isOptional = false, type = "any";
+        var name, isOptional = false, type = "any", subtype = "any";
 
         if (parameter && parameter.indexOf("/*") == 0) {
             name = parameter.split("*/")[1].trim();
@@ -23,6 +23,11 @@ window.TypeTester = {
             if (isOptional) {
                 type = type.replace("[optional]", "").trim();
             }
+
+            if (type.indexOf("array<") == 0) {
+                subtype = type.split("<")[1].split(">")[0].trim();
+                type = type.split("<")[0].trim();
+            }
         } else {
             name = parameter;
         }
@@ -30,8 +35,50 @@ window.TypeTester = {
         return {
             name: name,
             optional: isOptional,
-            type: type
+            type: type,
+            subtype: subtype
         };
+    },
+    checkArgument: function (parameter, passed) {
+        var actual = typeof(passed);
+
+        var isCorrect = true;
+        switch (parameter.type) {
+            case "any":
+                //Nothing to check
+                break;
+            case "int":
+                isCorrect = actual == "number" && passed.toString().match(/^[0-9]+$/) !== null;
+                break;
+            case "float":
+                isCorrect = actual == "number" && passed.toString().match(/^[0-9]+(\.[0-9])?$/) !== null;
+                break;
+            case "dom":
+                isCorrect = actual == "object" && passed instanceof Node;
+                break;
+            case "array":
+                isCorrect = passed instanceof Array || (/*required for node collections*/ passed && passed.length !== undefined);
+                if (isCorrect) {
+                    //Test type of elements in the array
+                    for (var i = 0; i < passed.length; i++) {
+                        this.checkArgument(
+                            {
+                                name: parameter.name,
+                                optional: parameter.optional,
+                                type: parameter.subtype,
+                                subtype: "any"
+                            },
+                            passed[i]
+                        );
+                    }
+                }
+                break;
+            default:
+                isCorrect = parameter.type == actual;
+        }
+        if (!isCorrect) {
+            console.warn("Wrong type given to parameter '" + parameter.name + "' in function '" + functionName + "'.\nExpected a '" + parameter.type + "' but got type " + actual + ":" + JSON.stringify(parentArguments[i], null, 4));
+        }
     },
     check: function () {
         var fullFunction = arguments.callee.caller.toString();
@@ -60,31 +107,7 @@ window.TypeTester = {
                     console.warn("Missing required parameter '" + parameter.name + "' in function '" + functionName + "' at index " + i + " but got " + parentArguments[i]);
                 }
             } else {
-                var actual = typeof(parentArguments[i]);
-
-                var isCorrect = true;
-                switch (parameter.type) {
-                    case "any":
-                        //Nothing to check
-                        break;
-                    case "int":
-                        isCorrect = actual == "number" && parentArguments[i].toString().match(/^[0-9]+$/) !== null;
-                        break;
-                    case "float":
-                        isCorrect = actual == "number" && parentArguments[i].toString().match(/^[0-9]+(\.[0-9])?$/) !== null;
-                        break;
-                    case "dom":
-                        isCorrect = actual == "object" && parentArguments[i] instanceof Node;
-                        break;
-                    case "array":
-                        isCorrect = parentArguments[i] instanceof Array || (/*required for node collections*/ parentArguments[i] && parentArguments[i].length!==undefined);
-                        break;
-                    default:
-                        isCorrect = parameter.type == actual;
-                }
-                if (!isCorrect) {
-                    console.warn("Wrong type given to parameter '" + parameter.name + "' in function '" + functionName + "'.\nExpected a '" + parameter.type + "' but got type " + actual + ":" + JSON.stringify(parentArguments[i], null, 4));
-                }
+                this.checkArgument(parameter, parentArguments[i]);
             }
         }
 
