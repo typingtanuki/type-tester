@@ -6,7 +6,7 @@ It might be improved by adding support for the reflection API on browsers which 
 
 ##Basic usage:
 ```javascript
-function(/*number*/ aNumber, /*[optional] string aString*/){
+function(/*number*/ aNumber, /*[optional] string*/ aString){
     TypeTester.check();
     
     //Function code
@@ -71,5 +71,5 @@ Some extra values are allowed for the <type> which are not actually returned by 
 
 ## Planned features
 
-* Support for '/* array[<type>] */ varName' notation
+* Support for '/* array[type] */ varName' notation
 * Support for regex pattern matching as '/* /regex/ */ varName'
