@@ -71,5 +71,5 @@ Some extra values are allowed for the <type> which are not actually returned by 
 
 ## Planned features
 
-* Support for '/*array[<type>]*/ varName' notation
+* Support for '/* array[<type>] */ varName' notation
 * Support for regex pattern matching as '/* /regex/ */ varName'
