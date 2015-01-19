@@ -36,6 +36,11 @@ window.TypeTester = {
     check: function () {
         var fullFunction = arguments.callee.caller.toString();
         var functionName = fullFunction.replace(/\r*\n*/, "").split("(")[0].split("function")[1].trim();
+        if (functionName == "") {
+            //Anonymous function
+            functionName = fullFunction.replace(/\r*\n*/, "").substring(0, 40);
+        }
+
         var parameterPart = fullFunction.replace(/\r*\n*/, "").split("(")[1].split(")")[0];
         var parameters = parameterPart.split(",");
         parameters = this.trimArray(parameters);
@@ -63,13 +68,16 @@ window.TypeTester = {
                         //Nothing to check
                         break;
                     case "int":
-                        isCorrect = parameter.type == "number" && parentArguments[i].toString().match(/^[0-9]+$/);
+                        isCorrect = actual == "number" && parentArguments[i].toString().match(/^[0-9]+$/) !== null;
                         break;
                     case "float":
-                        isCorrect = parameter.type == "number" && parentArguments[i].toString().match(/^[0-9]+(\.[0-9])?*$/);
+                        isCorrect = actual == "number" && parentArguments[i].toString().match(/^[0-9]+(\.[0-9])?$/) !== null;
+                        break;
+                    case "dom":
+                        isCorrect = actual == "object" && parentArguments[i] instanceof Node;
                         break;
                     case "array":
-                        isCorrect = parentArguments[i] instanceof Array;
+                        isCorrect = parentArguments[i] instanceof Array || (/*required for node collections*/ parentArguments[i] && parentArguments[i].length!==undefined);
                         break;
                     default:
                         isCorrect = parameter.type == actual;
