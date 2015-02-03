@@ -81,6 +81,13 @@ window.TypeTester = {
                     }
                 }
                 break;
+                case "unit":
+					try{
+						isCorrect = (""+this.size)===(""+parseInt(this.size));
+					}catch(e){
+						isCorrect = false;
+					}
+				break;
             default:
                 isCorrect = parameter.type == actual;
         }
