@@ -81,13 +81,13 @@ window.TypeTester = {
                     }
                 }
                 break;
-                case "unit":
-					try{
-						isCorrect = (""+this.size)===(""+parseInt(this.size));
-					}catch(e){
-						isCorrect = false;
-					}
-				break;
+            case "unit":
+                try {
+                    isCorrect = ("" + this.size) === ("" + parseInt(this.size));
+                } catch (e) {
+                    isCorrect = false;
+                }
+                break;
             default:
                 isCorrect = parameter.type == actual;
         }
@@ -95,12 +95,16 @@ window.TypeTester = {
             this.fail("Wrong type given to parameter '" + parameter.name + "' in function '" + functionName + "'.\nExpected a '" + parameter.type + "' but got type " + actual + ":" + JSON.stringify(parentArguments[i], null, 4));
         }
     },
-    _check_: function () {
+    _check_: function (functionInfo) {
         var fullFunction = arguments.callee.caller.toString();
         var functionName = fullFunction.replace(/\r*\n*/, "").split("(")[0].split("function")[1].trim();
         if (functionName == "") {
             //Anonymous function
             functionName = fullFunction.replace(/\r*\n*/, "").substring(0, 40);
+        }
+
+        if (functionInfo !== undefined) {
+            functionName = functionInfo + "--" + functionName;
         }
 
         var parameterPart = fullFunction.replace(/\r*\n*/, "").split("(")[1].split(")")[0];
