@@ -47,7 +47,7 @@ window.TypeTester = {
         throw new TypeError(message);
     },
 
-    checkArgument: function (parameter, passed) {
+    checkArgument: function (parameter, passed, functionName) {
         var actual = typeof(passed);
 
         var isCorrect = true;
@@ -76,7 +76,8 @@ window.TypeTester = {
                                 type: parameter.subtype,
                                 subtype: "any"
                             },
-                            passed[i]
+                            passed[i],
+                            functionName
                         );
                     }
                 }
@@ -126,7 +127,7 @@ window.TypeTester = {
                     this.fail("Missing required parameter '" + parameter.name + "' in function '" + functionName + "' at index " + i + " but got " + parentArguments[i]);
                 }
             } else {
-                this.checkArgument(parameter, parentArguments[i]);
+                this.checkArgument(parameter, parentArguments[i], functionName);
             }
         }
 
